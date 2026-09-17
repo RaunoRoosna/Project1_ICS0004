@@ -147,6 +147,9 @@
   <ItemGroup>
     <ClInclude Include="Logic.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Flights.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
