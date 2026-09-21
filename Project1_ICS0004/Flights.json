@@ -1,0 +1,27 @@
+{
+  "Flight": [
+
+    {
+      "destination": "ere",
+      "departure": "dsg",
+      "num_seats": 6,
+      "seats": [
+        "8B",
+        "3C",
+        "9F",
+        "5A",
+        "4F",
+        "9C"
+      ]
+    },
+
+    {
+      ....
+    },
+
+    {
+      ....
+    }
+
+  ]
+}

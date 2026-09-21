@@ -17,8 +17,14 @@ char selected_seat[20];
 struct Flight* flight1;
 struct Flight* flight2;
 
-/*struct Reservation {
+/*struct user {
 	char first_name[20];
 	char last_name[20];
-	struct Flight flight;
+	int uid;
 };*/
+
+/* struct reservation {
+	int uid;
+	int flight_number;
+	char* seat;
+}*/

@@ -1,13 +1,13 @@
 {
-  "destination":"ere",
-  "departure":"dsg",
+  "destination":"Helsinki",
+  "departure":"Tallinn",
   "num_seats":6,
   "seats":[
-    "8B",
-    "3C",
-    "9F",
-    "5A",
-    "4F",
-    "9C"
+    "1A",
+    "2E",
+    "5D",
+    "4A",
+    "5C",
+    "2F"
   ]
 }

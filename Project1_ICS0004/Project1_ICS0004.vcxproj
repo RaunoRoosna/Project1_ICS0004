@@ -139,19 +139,21 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DataManager.c" />
     <ClCompile Include="Logic.c" />
     <ClCompile Include="Models.c" />
     <ClCompile Include="Models.h" />
     <ClCompile Include="Main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DataManager.h" />
     <ClInclude Include="Logic.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Flights.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="flight1.json" />
+    <None Include="Flights.json" />
+    <None Include="Resrvations.json" />
+    <None Include="Users.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
