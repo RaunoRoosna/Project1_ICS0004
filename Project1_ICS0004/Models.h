@@ -1,6 +1,8 @@
 #pragma once
 #include <stdlib.h>
 
+#define seat_length 3
+
 struct Flight {
 	char destination[20];
 	char departure[20];

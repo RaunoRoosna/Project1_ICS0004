@@ -17,9 +17,9 @@ void generate_flight(struct Flight** flight) { // Fills out a flight struct with
 	*flight = malloc(sizeof(struct Flight));
 	(*flight)->seats = malloc(available_seats * sizeof(char*));
 	for (int i = 0; i < available_seats; i++) {
-		(*flight)->seats[i] = malloc(sizeof(char*));
+		(*flight)->seats[i] = malloc(seat_length);
 		snprintf(buf, 20, "%d%s", randr(9, 1), seat_letter[randr(5, 0)]);
-		strcpy_s((*flight)->seats[i], sizeof((*flight)->seats[i]), buf);
+		strcpy_s((*flight)->seats[i], seat_length, buf);
 		for (int j = 0; j < i; j++) {  // Check for duplicates
 			if (strcmp((*flight)->seats[i], (*flight)->seats[j]) == 0) {
 				i--;
@@ -43,7 +43,7 @@ void reserve_seat(struct Flight** flight, const char* seat) { // Removes the sea
 			for (int j = i; j < (*flight)->num_seats; j++) { // overrides deleted seat with the next seat in the array
 				(*flight)->seats[j] = (*flight)->seats[j + 1];
 			}
-			char* temp = realloc((*flight)->seats, ((*flight)->num_seats) * sizeof(char*));
+			char* temp = realloc((*flight)->seats, ((*flight)->num_seats) * seat_length);
 			(*flight)->seats = temp;
 			temp = NULL;
 			break;
