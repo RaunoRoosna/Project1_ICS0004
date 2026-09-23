@@ -1,4 +1,6 @@
 #pragma once
-void save_flight_to_json(struct Flight* flight, const char* filename);
-struct Flight* load_flight_from_json(const char* filename);
-void json_flight_cleanup(struct Flight* flight);
+#include <json-c/JSON.h>
+#include "Models.h"
+
+json_object* serialise_flights_to_json(void);
+void write_flights_to_file(void);

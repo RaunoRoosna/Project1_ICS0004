@@ -5,36 +5,8 @@
 
 
 
-/*void save_flight_to_json(struct Flight* flight, const char* filename) {
-    if (flight == NULL) return;
 
-    // Create JSON object
-    json_object* root = json_object_new_object();
-
-    // Add flight data
-    json_object_object_add(root, "destination", json_object_new_string(flight->destination));
-    json_object_object_add(root, "departure", json_object_new_string(flight->departure));
-    json_object_object_add(root, "num_seats", json_object_new_int(flight->num_seats));
-
-    // Add seats array
-    json_object* seats_array = json_object_new_array();
-    for (int i = 0; i < flight->num_seats; i++) {
-        json_object_array_add(seats_array, json_object_new_string(flight->seats[i]));
-    }
-    json_object_object_add(root, "seats", seats_array);
-
-    // Write to file
-    FILE* fp;
-    fopen_s(&fp, filename, "w");
-    if (fp != NULL) {
-        fprintf(fp, "%s\n", json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY));
-        fclose(fp);
-    }
-
-    json_object_put(root);  // Free JSON object
-}*/
-
-struct Flight* load_flight_from_json(const char* filename) {
+/*struct Flight* load_flight_from_json(const char* filename) {
     FILE* fp;
     fopen_s(&fp, filename, "r");
     if (fp == NULL) return NULL;
@@ -78,11 +50,77 @@ struct Flight* load_flight_from_json(const char* filename) {
 
     json_object_put(root);
     return flight;
+}*/
+
+
+
+json_object* serialise_flights_to_json(void) {
+    json_object* root = json_object_new_object();
+    json_object* flights_array = json_object_new_array_ext(100);
+	json_object_object_add(root, "num_flights", json_object_new_int(num_flights));
+
+    for (int i = 0; i < num_flights; i++) {
+        json_object* flight_obj = json_object_new_object();
+
+        json_object_object_add(flight_obj, "destination", json_object_new_string(cached_flights[i].destination));
+        json_object_object_add(flight_obj, "departure", json_object_new_string(cached_flights[i].departure));
+        json_object_object_add(flight_obj, "num_seats", json_object_new_int(cached_flights[i].num_seats));
+        json_object_object_add(flight_obj, "flight_number", json_object_new_int(cached_flights[i].flight_number));
+
+        json_object* seats_array = json_object_new_array();
+        for (int j = 0; j < cached_flights[i].num_seats; j++) {
+            json_object_array_add(seats_array, json_object_new_string( cached_flights[i].seats[j]));
+        }
+        json_object_object_add(flight_obj, "seats", seats_array);
+
+        json_object_array_add(flights_array, flight_obj);
+    }
+
+    json_object_object_add(root, "flights", flights_array);
+
+    return root;
 }
 
+void write_flights_to_file(void) {
+	json_object* flights_json = serialise_flights_to_json();
+	FILE* fp;
+	fopen_s(&fp, "flights.json", "w");
+	if (fp != NULL) {
+		fprintf(fp, "%s\n", json_object_to_json_string_ext(flights_json, JSON_C_TO_STRING_PRETTY));
+	}
+    else {
+		printf("Error opening file.\n");
+        return 1;
+    }
+    fclose(fp);
+	json_object_put(flights_json);
+}
 
+    
+char read_flights_from_file(void) {
+    FILE* fp;
+    fopen_s(&fp, "flights.json", "r");
+    fseek(fp, 0, SEEK_END);
+	long file_lenght = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+    char* buffer = malloc(file_lenght + 1);
 
-serialise_flight_to_json(struct Flight* flight) {
-	json_object* root = json_object_new_object();
-    json_object
+    if (fp != NULL) {
+		fgets(buffer, file_lenght, fp);
+    }
+    else {
+		printf("error opening file.\n");
+    }
+	buffer[file_lenght+1] = '\0';
+    fclose(fp);
+    return buffer;
+}
+
+void deserialise_flights_from_json(void) {
+
+	cached_flights = malloc((sizeof(struct Flight)) * num_flights);
+	json_object* root = json_tokener_parse(read_flights_from_file());
+
+    json_object_object_get_ex();    
+	json_object_array_get_idx();
 }
