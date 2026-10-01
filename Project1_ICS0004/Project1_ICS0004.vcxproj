@@ -150,9 +150,8 @@
     <ClInclude Include="Logic.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\flight1.json" />
-    <None Include="Resources\Flights.json" />
-    <None Include="Resources\Resrvations.json" />
+    <None Include="Flights.json" />
+    <None Include="Reservations.json" />
     <None Include="Resources\Users.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

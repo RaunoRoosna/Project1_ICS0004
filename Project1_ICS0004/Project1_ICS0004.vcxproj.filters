@@ -27,19 +27,26 @@
     <ClCompile Include="Models.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DataManager.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Logic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DataManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Flights.txt">
+    <None Include="Resources\Users.json">
       <Filter>Resource Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="flight1.json">
+    </None>
+    <None Include="Flights.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Reservations.json">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

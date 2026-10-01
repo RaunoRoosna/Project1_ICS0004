@@ -1,0 +1,20 @@
+{
+  "num_reservations":3,
+  "reservations":[
+    {
+      "uid":2,
+      "flight_number":2503,
+      "seat":"8B"
+    },
+    {
+      "uid":2,
+      "flight_number":2503,
+      "seat":"4A"
+    },
+    {
+      "uid":2,
+      "flight_number":7833,
+      "seat":"9D"
+    }
+  ]
+}
