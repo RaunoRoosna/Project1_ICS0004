@@ -22,25 +22,18 @@ json_object* serialise_flights_to_json(void) {
 		json_object_object_add(flight_obj, "flight_number", json_object_new_int(cached_flights[i]->flight_number));
 		
 		json_object* seats_array = json_object_new_array();
-		printf("5\n");
 		if (cached_flights[i]->seats != NULL && cached_flights[i]->num_seats > 0) { 	// Check if seats exist before iterating
-			printf("51\n");
 			for (int j = 0; j < cached_flights[i]->num_seats; j++) {
-				printf("52\n");
 				if (cached_flights[i]->seats[j] != NULL) {
-					printf("53\n");
 					json_object_array_add(seats_array, json_object_new_string(cached_flights[i]->seats[j]));
-					printf("54\n");
 				} else {
 					printf("Warning: Seat at index %d in flight %d is NULL.\n", j, i);
 					json_object_array_add(seats_array, json_object_new_string(""));
 				}
-				printf("55\n");
 			}
 		} else { 
 			printf("Error: No available seats for flight %d.\n", i);
 		}
-		printf("6\n");
 		json_object_object_add(flight_obj, "seats", seats_array);
 		json_object_array_add(flights_array, flight_obj);
 	}

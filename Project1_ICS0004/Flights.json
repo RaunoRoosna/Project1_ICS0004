@@ -1,5 +1,5 @@
 {
-  "num_flights":2,
+  "num_flights":5,
   "flights":[
     {
       "destination":"tallinn",
@@ -24,6 +24,48 @@
         "2C",
         "5B",
         "1A"
+      ]
+    },
+    {
+      "destination":"awkje",
+      "departure":"afkna",
+      "num_seats":6,
+      "flight_number":5108,
+      "seats":[
+        "3F",
+        "1B",
+        "5A",
+        "8F",
+        "1C",
+        "1A"
+      ]
+    },
+    {
+      "destination":"gaas",
+      "departure":"gskos",
+      "num_seats":6,
+      "flight_number":6110,
+      "seats":[
+        "6D",
+        "2D",
+        "3F",
+        "4F",
+        "5D",
+        "8B"
+      ]
+    },
+    {
+      "destination":"afwml",
+      "departure":"fwan",
+      "num_seats":6,
+      "flight_number":4504,
+      "seats":[
+        "2A",
+        "1E",
+        "2D",
+        "8A",
+        "2E",
+        "3C"
       ]
     }
   ]

@@ -11,8 +11,6 @@ int main() {
 	deserialise_flights_from_json();
 	deserialise_reservations_from_json();
 
-	malloc(sizeof(int));
-
 	get_username_ui();
 	switch (access) {
 

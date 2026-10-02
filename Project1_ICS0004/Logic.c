@@ -108,7 +108,7 @@ void flight_to_cache(void){
 	error_handler(101, temp, 5);
 
 	temp[num_flights] = current_flight; 
-	temp[num_flights]->seats = current_flight->seats;
+	//temp[num_flights]->seats = current_flight->seats;
 	num_flights++;
 
 	cached_flights = temp;
