@@ -4,28 +4,26 @@
     {
       "destination":"tallinn",
       "departure":"helsinki",
-      "num_seats":5,
-      "flight_number":2503,
+      "num_seats":6,
+      "flight_number":4483,
       "seats":[
-        "1D",
-        "3D",
-        "9B",
+        "7D",
+        "5E",
+        "8A",
+        "7F",
         "9F",
-        "5F"
+        "8B"
       ]
     },
     {
-      "destination":"gasafw",
-      "departure":"sewad",
-      "num_seats":6,
-      "flight_number":7833,
+      "destination":"helsinki",
+      "departure":"tallinn",
+      "num_seats":3,
+      "flight_number":8549,
       "seats":[
-        "7F",
-        "7E",
-        "1D",
-        "4C",
-        "9E",
-        "1C"
+        "2C",
+        "5B",
+        "1A"
       ]
     }
   ]

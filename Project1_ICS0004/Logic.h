@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "Models.h"
+#include "UI.h"
 #include <json-c/JSON.h>
 
 int randr(int max, int min);
@@ -26,3 +27,4 @@ void cancel_reservation(int flight_number, char* seat);
 int read_and_scan_int( int* out);
 void show_reservation(struct Reservation reservation);
 void cancel_reservation_ui(void);
+void manual_add_flight(void);

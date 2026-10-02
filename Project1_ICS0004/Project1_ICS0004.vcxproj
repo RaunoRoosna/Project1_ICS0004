@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="Logic.h" />
+    <ClInclude Include="UI.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Flights.json" />
@@ -157,4 +158,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties Reservations_1json__JsonSchema="https://acp-protocol.dev/schemas/v1/primer.schema.json" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

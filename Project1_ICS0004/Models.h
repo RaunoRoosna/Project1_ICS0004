@@ -1,7 +1,7 @@
 #pragma once
 #include <stdlib.h>
 
-#define seat_length 3
+#define seat_length 6
 #define location_length 20
 
 struct Flight {

@@ -6,19 +6,14 @@ json_object* serialise_flights_to_json(void) {
 		error_handler(100, NULL, 1000);
 	}
 	if (num_flights == 0) {
-		return NULL;
+		return;
 	}
-
 	json_object* root = json_object_new_object();
 	json_object* flights_array = json_object_new_array_ext(num_flights);
-
 	json_object_object_add(root, "num_flights", json_object_new_int(num_flights));
-	
 	for (int i = 0; i < num_flights; i++) { 	// Serialise each flight
-		printf("Flight pointer check: cached_flights[%d] = %p\n", i, (void*)cached_flights[i]);
 		error_handler(101, cached_flights[i], NULL);
 		
-
 		json_object* flight_obj = json_object_new_object();
 
 		json_object_object_add(flight_obj, "destination", json_object_new_string(cached_flights[i]->destination));
@@ -27,23 +22,28 @@ json_object* serialise_flights_to_json(void) {
 		json_object_object_add(flight_obj, "flight_number", json_object_new_int(cached_flights[i]->flight_number));
 		
 		json_object* seats_array = json_object_new_array();
-
+		printf("5\n");
 		if (cached_flights[i]->seats != NULL && cached_flights[i]->num_seats > 0) { 	// Check if seats exist before iterating
+			printf("51\n");
 			for (int j = 0; j < cached_flights[i]->num_seats; j++) {
+				printf("52\n");
 				if (cached_flights[i]->seats[j] != NULL) {
+					printf("53\n");
 					json_object_array_add(seats_array, json_object_new_string(cached_flights[i]->seats[j]));
+					printf("54\n");
 				} else {
 					printf("Warning: Seat at index %d in flight %d is NULL.\n", j, i);
 					json_object_array_add(seats_array, json_object_new_string(""));
 				}
+				printf("55\n");
 			}
-		} else {
+		} else { 
 			printf("Error: No available seats for flight %d.\n", i);
 		}
+		printf("6\n");
 		json_object_object_add(flight_obj, "seats", seats_array);
 		json_object_array_add(flights_array, flight_obj);
 	}
-	printf("109");
 	json_object_object_add(root, "flights", flights_array);
 
 	return root;
@@ -51,7 +51,7 @@ json_object* serialise_flights_to_json(void) {
 
 void write_flights_to_file(void) {
 	json_object* flights_json = serialise_flights_to_json();
-
+	printf("100\n");
 	// Open file for writing
 	FILE* fp;
 	fopen_s(&fp, "Flights.json", "w");
@@ -221,9 +221,9 @@ void deserialise_reservations_from_json(void) {
 	free(buffer);
 	json_object* num_reservations_obj = json_object_object_get(root, "num_reservations");
 
-	num_reservations = json_object_get_int(num_reservations_obj); // Allocate cached_reservations array
+	num_reservations = json_object_get_int(num_reservations_obj); 
 
-	cached_reservations = malloc((sizeof(struct Reservation)) * num_reservations);
+	cached_reservations = malloc(((sizeof(struct Reservation)) + 1) * num_reservations);
 	error_handler(101, cached_reservations, 1002);
 	json_object* reservations_array = json_object_object_get(root, "reservations");
 
@@ -239,5 +239,6 @@ void deserialise_reservations_from_json(void) {
 		json_object* seat_obj =json_object_object_get(reservation_obj, "seat");
 		strcpy_s(cached_reservations[i].seat, seat_length, json_object_get_string(seat_obj));
 	}
+
 	json_object_put(root);
 }
