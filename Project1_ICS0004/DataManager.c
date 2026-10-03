@@ -18,14 +18,14 @@ json_object* serialise_flights_to_json(void) {
 
 		json_object_object_add(flight_obj, "destination", json_object_new_string(cached_flights[i]->destination));
 		json_object_object_add(flight_obj, "departure", json_object_new_string(cached_flights[i]->departure));
-		json_object_object_add(flight_obj, "num_seats", json_object_new_int(cached_flights[i]->num_seats));
+		json_object_object_add(flight_obj, "num_seats", json_object_new_int(cached_flights[i]->number_of_seats));
 		json_object_object_add(flight_obj, "flight_number", json_object_new_int(cached_flights[i]->flight_number));
 		
 		json_object* seats_array = json_object_new_array();
-		if (cached_flights[i]->seats != NULL && cached_flights[i]->num_seats > 0) { 	// Check if seats exist before iterating
-			for (int j = 0; j < cached_flights[i]->num_seats; j++) {
-				if (cached_flights[i]->seats[j] != NULL) {
-					json_object_array_add(seats_array, json_object_new_string(cached_flights[i]->seats[j]));
+		if (cached_flights[i]->available_seats != NULL && cached_flights[i]->number_of_seats > 0) { 	// Check if seats exist before iterating
+			for (int j = 0; j < cached_flights[i]->number_of_seats; j++) {
+				if (cached_flights[i]->available_seats[j] != NULL) {
+					json_object_array_add(seats_array, json_object_new_string(cached_flights[i]->available_seats[j]));
 				} else {
 					printf("Warning: Seat at index %d in flight %d is NULL.\n", j, i);
 					json_object_array_add(seats_array, json_object_new_string(""));
@@ -110,28 +110,28 @@ void deserialise_flights_from_json(void) {
 			strcpy_s(cached_flights[i]->departure, 20, json_object_get_string(dept_obj));
 
 		json_object* seats_count_obj = json_object_object_get(flight_obj, "num_seats");
-			cached_flights[i]->num_seats = json_object_get_int(seats_count_obj);
+			cached_flights[i]->number_of_seats = json_object_get_int(seats_count_obj);
 
 		json_object* flight_num_obj = json_object_object_get(flight_obj, "flight_number");
 			cached_flights[i]->flight_number = json_object_get_int(flight_num_obj);
 
 		json_object* seats_array = json_object_object_get(flight_obj, "seats");
 
-		if (cached_flights[i]->num_seats == 0) {
-			cached_flights[i]->seats = NULL;
+		if (cached_flights[i]->number_of_seats == 0) {
+			cached_flights[i]->available_seats = NULL;
 			continue;
 		}
 			// Allocate seats
-			cached_flights[i]->seats = malloc(cached_flights[i]->num_seats * sizeof(char*));
-			error_handler(101, cached_flights[i]->seats, 1003);
+			cached_flights[i]->available_seats = malloc(cached_flights[i]->number_of_seats * sizeof(char*));
+			error_handler(101, cached_flights[i]->available_seats, 1003);
 
 
 			// Deserialize each seat
-			for (int j = 0; j < cached_flights[i]->num_seats; j++) {
+			for (int j = 0; j < cached_flights[i]->number_of_seats; j++) {
 				json_object* seat_obj = json_object_array_get_idx(seats_array, j);
-				cached_flights[i]->seats[j] = malloc(seat_length);
-				error_handler(101, cached_flights[i]->seats[j], 1004);
-				strcpy_s(cached_flights[i]->seats[j], seat_length, json_object_get_string(seat_obj));
+				cached_flights[i]->available_seats[j] = malloc(SEAT_LENGTH);
+				error_handler(101, cached_flights[i]->available_seats[j], 1004);
+				strcpy_s(cached_flights[i]->available_seats[j], SEAT_LENGTH, json_object_get_string(seat_obj));
 				json_object_put(seat_obj);
 			}
 	}
@@ -230,7 +230,7 @@ void deserialise_reservations_from_json(void) {
 		cached_reservations[i].flight_number = json_object_get_int(flight_num_obj);
 
 		json_object* seat_obj =json_object_object_get(reservation_obj, "seat");
-		strcpy_s(cached_reservations[i].seat, seat_length, json_object_get_string(seat_obj));
+		strcpy_s(cached_reservations[i].seat, SEAT_LENGTH, json_object_get_string(seat_obj));
 	}
 
 	json_object_put(root);

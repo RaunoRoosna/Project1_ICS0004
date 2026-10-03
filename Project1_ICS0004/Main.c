@@ -1,6 +1,7 @@
 #include "Logic.h"
 #include "DataManager.h"
 #include "UI.h"
+#include <ctype.h>
 char user_action;
 char admin_action;
 char switch_action;
@@ -101,7 +102,7 @@ int main() {
 
 				switch (switch_action) {
 				case 'a':
-					manual_add_flight();
+					add_flight();
 					flight_to_cache();
 					write_flights_to_file();
 					continue;
@@ -120,10 +121,10 @@ int main() {
 		}
 	}
 	
-	for (int i = 0; i < current_flight->num_seats; i++) {
-		free(current_flight->seats[i]);
+	for (int i = 0; i < current_flight->number_of_seats; i++) {
+		free(current_flight->available_seats[i]);
 	}
-	free(current_flight->seats);
+	free(current_flight->available_seats);
 	return 0;
 }
 
@@ -144,19 +145,21 @@ void get_reserve_view_ui(void) {
 }
 
 void get_destination_ui(void) {
+	bool correct_destination = false;
 	do {
-		printf("Destination:"); // Get the destination location from the user and store it in the destination_loc variable
-		fgets(destination_loc, location_length, stdin);
-		destination_loc[strcspn(destination_loc, "\n")] = 0;
-	} while (strlen(destination_loc) == 0);
+		printf("Destination:"); 
+		fgets(destination_loc, LOCATION_LENGTH, stdin);
+		correct_destination = scan_string(destination_loc);
+	} while (!correct_destination);
 }
 
 void get_departure_ui(void) {
+	bool correct_departure = false;
 	do {
-		printf("Departure:"); // Get the departure location from the user and store it in the departure_loc variable
-		fgets(departure_loc, sizeof(departure_loc), stdin);
-		departure_loc[strcspn(departure_loc, "\n")] = 0;
-	} while (strlen(departure_loc) == 0);
+		printf("Departure:");
+		fgets(departure_loc, LOCATION_LENGTH, stdin);
+		correct_departure = scan_string(departure_loc);
+	} while (!correct_departure);
 }
 
 void random_flight_generation(void) {
@@ -172,7 +175,7 @@ void get_flight_ui(int array[], int* elements) {
 	}
 
 	int selected_flight;
-	bool out = true;
+	bool correct_flight_number = false;
 	do {
 		printf("Choose flight (enter flight number):");
 		if (!read_and_scan_int(&selected_flight)) {
@@ -180,14 +183,13 @@ void get_flight_ui(int array[], int* elements) {
 			continue;
 		}
 		for (int j = 0; j < *elements; j++) {
-			
 			if (selected_flight == cached_flights[array[j]]->flight_number) {
-				out = false;
+				correct_flight_number = false;
 				reserve_seat(cached_flights[array[j]]);
 			}
 		}
 		
-	} while (out);
+	} while (!correct_flight_number);
 }
 
 void get_reservation_ui(void) {
@@ -228,15 +230,15 @@ void get_dnd_flightnum_ui(void) {
 }
 
 int get_flightnum_ui(int selected_flight) {
-	int index;
+	bool index = false;
 	do {
 		printf("Enter flight number:");
 		if (!read_and_scan_int(&selected_flight)) {
-			index = -1;
+			index = true;
 			continue;
 		}
 		index = find_flight(selected_flight);
-	} while (index == -1);
+	} while (index == true);
 	return index;
 }
 

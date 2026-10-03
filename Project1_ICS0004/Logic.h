@@ -8,7 +8,7 @@
 #include "UI.h"
 #include <json-c/JSON.h>
 
-int randr(int max, int min);
+int random_number_in_range(int max, int min);
 void generate_flight(struct Flight** flight);
 void reserve_seat(struct Flight* flight);
 int check_user(char* username);		
@@ -27,4 +27,5 @@ void cancel_reservation(int flight_number, char* seat);
 int read_and_scan_int( int* out);
 void show_reservation(struct Reservation reservation);
 void cancel_reservation_ui(void);
-void manual_add_flight(void);
+void add_flight(void);
+bool scan_string(char* string);

@@ -4,25 +4,27 @@
 
 char* seat_letter[] = { "A", "B", "C", "D", "E", "F" };
 
-int randr(int max, int min) { //return a random value from max to min
-	int rnum = rand() % (max - min + 1) + min;
-	return rnum;
+int random_number_in_range(int max, int min) { //return a random value from max to min
+	return (rand() % (max - min + 1) + min);
 }
 
 void generate_flight(struct Flight** flight) { // Fills out a flight struct 
-	int available_seats = 7;
+	int seats = 7;
 	char buf[20];
 	*flight = malloc(sizeof(struct Flight));
 	error_handler(101, *flight, 1);
-	(*flight)->seats = malloc(available_seats * sizeof(char*)); // Array of pointers
-	error_handler(101, (*flight)->seats, 2);
-	for (int i = 0; i < available_seats; i++) {
-		(*flight)->seats[i] = malloc(seat_length);
-		error_handler(101, (*flight)->seats[i], 3);
-		snprintf(buf, 20, "%d%s", randr(9, 1), seat_letter[randr(5, 0)]);
-		strcpy_s((*flight)->seats[i], seat_length, buf);
+
+	(*flight)->available_seats = malloc(seats * sizeof(char*)); // Array of pointers
+	error_handler(101, (*flight)->available_seats, 2);
+
+	for (int i = 0; i < seats; i++) {
+		(*flight)->available_seats[i] = malloc(SEAT_LENGTH);
+		error_handler(101, (*flight)->available_seats[i], 3);
+		snprintf(buf, 20, "%d%s", random_number_in_range(9, 1), seat_letter[random_number_in_range(5, 0)]);
+		strcpy_s((*flight)->available_seats[i], SEAT_LENGTH, buf);
+
 		for (int j = 0; j < i; j++) {  // Check for duplicates
-			if (strcmp((*flight)->seats[i], (*flight)->seats[j]) == 0) {
+			if (strcmp((*flight)->available_seats[i], (*flight)->available_seats[j]) == 0) {
 				i--;
 				break;
 			}
@@ -30,39 +32,46 @@ void generate_flight(struct Flight** flight) { // Fills out a flight struct
 	}
 	strcpy_s((*flight)->destination, 20, destination_loc);
 	strcpy_s((*flight)->departure, 20, departure_loc);
-	(*flight)->num_seats = available_seats;
+	(*flight)->number_of_seats = seats;
 
-	bool temp = false; // Sets unique flight num
-	int tempnum;
+	bool flight_number_exists = false;
+	int generated_flight_number;
+
 	do {
-		tempnum = randr(9999, 1000);
-		for (int k = 0; k < num_flights; k++) {
-			if (tempnum == cached_flights[k]->flight_number) {
-				temp = true;
+		generated_flight_number = random_number_in_range(9999, 1000);
+		for (int k = 0; k < num_flights; k++) { //Chekcs if the flight number is already in use
+			if (generated_flight_number == cached_flights[k]->flight_number) {
+				flight_number_exists = true;
 				break;
 			}
 		}
-	} while (temp);
-	(*flight)->flight_number = tempnum;
+	} while (flight_number_exists);
+
+	(*flight)->flight_number = generated_flight_number;
 }
 
-void reserve_seat(struct Flight** flight) { // Removes the seat from the flight struct and reallocates the memory for the seats array
+void reserve_seat(struct Flight** flight) { // Removes the seat from flight struct and reallocates the memory for the seats array
 	printf("Choose the seat you want to book: ");
 	fgets(selected_seat, sizeof(selected_seat), stdin);
 	selected_seat[strcspn(selected_seat, "\n")] = 0;
-	for (int i = 0; i < (*flight)->num_seats; i++) {
-		if ((*flight)->seats[i] != NULL && strcmp((*flight)->seats[i], selected_seat) == 0) {
+
+	for (int i = 0; i < (*flight)->number_of_seats; i++) {
+		if ((*flight)->available_seats[i] != NULL && strcmp((*flight)->available_seats[i], selected_seat) == 0) {
 			printf("You have booked seat %s on flight from %s to %s\n", selected_seat, (*flight)->departure, (*flight)->destination);
-			(*flight)->num_seats--;
+			(*flight)->number_of_seats--;
 			reservation_to_cache(*flight);
-			for (int j = i; j < (*flight)->num_seats; j++) { // overrides deleted seat with the next seat in the array
-				(*flight)->seats[j] = (*flight)->seats[j + 1];
+
+			for (int j = i; j < (*flight)->number_of_seats; j++) { // overrides deleted seat with the next seat in the array
+				(*flight)->available_seats[j] = (*flight)->available_seats[j + 1];
 			}
-			char** temp = realloc((*flight)->seats, ((*flight)->num_seats) * sizeof(char*));
+			char** temp = realloc((*flight)->available_seats, ((*flight)->number_of_seats) * sizeof(char*));
 			error_handler(101, temp, 4);
-			(*flight)->seats = temp;
+			(*flight)->available_seats = temp;
 			temp = NULL;
 			break;
+		}
+		else {
+
 		}
 	}
 }
@@ -95,8 +104,8 @@ void show_flight(struct Flight* flight) { // Shows the flight information to the
 	printf("Destination: %s\n", flight->destination);
 	printf("Flight number: %d\n", flight->flight_number);
 	printf("The available seats are: "); // Prints the available seats to the user
-	for (int i = 0; i < flight->num_seats; i++) {
-		printf("%s ", flight->seats[i]);
+	for (int i = 0; i < flight->number_of_seats; i++) {
+		printf("%s ", flight->available_seats[i]);
 	}
 	printf("\n");
 	printf("----------------------\n");
@@ -104,26 +113,26 @@ void show_flight(struct Flight* flight) { // Shows the flight information to the
 
 
 void flight_to_cache(void){
-	struct Flight** temp = realloc(cached_flights, (num_flights + 1) * sizeof(struct Flight*));
-	error_handler(101, temp, 5);
+	struct Flight** temporary_cached_flights = realloc(cached_flights, (num_flights + 1) * sizeof(struct Flight*));
+	error_handler(101, temporary_cached_flights, 5);
 
-	temp[num_flights] = current_flight; 
-	//temp[num_flights]->seats = current_flight->seats;
+	temporary_cached_flights[num_flights] = current_flight; 
 	num_flights++;
 
-	cached_flights = temp;
-	temp = NULL;
+	cached_flights = temporary_cached_flights;
+	temporary_cached_flights = NULL;
 }
 
 void reservation_to_cache(struct Flight* flight) {
-	struct Reservation* temp = realloc(cached_reservations, (num_reservations + 1) * (sizeof(struct Reservation) + 1));
-	error_handler(101, temp, 6);
-	temp[num_reservations].uid = current_user.uid; 
-	temp[num_reservations].flight_number = flight->flight_number;
-	strcpy_s(temp[num_reservations].seat, seat_length, selected_seat);
+	struct Reservation* temporary_cached_reservations = realloc(cached_reservations, (num_reservations + 1) * (sizeof(struct Reservation) + 1));
+	error_handler(101, temporary_cached_reservations, 6);
+
+	temporary_cached_reservations[num_reservations].uid = current_user.uid; 
+	temporary_cached_reservations[num_reservations].flight_number = flight->flight_number;
+	strcpy_s(temporary_cached_reservations[num_reservations].seat, SEAT_LENGTH, selected_seat);
 	num_reservations++;
-	cached_reservations = temp;
-	temp = NULL;
+	cached_reservations = temporary_cached_reservations;
+	temporary_cached_reservations = NULL;
 }
 
 int error_handler(int code, char* ptr, int debug) {
@@ -143,9 +152,10 @@ int error_handler(int code, char* ptr, int debug) {
 }
 
 void find_existing_flights(int* array, int* elements) {
-	for (int j = 0, i = 0; i < num_flights;) {
+	int limit_found_flights = 10;
+	for (int i = 0, j = 0; i < num_flights;) {
 		if (!strcmp(destination_loc, cached_flights[i]->destination) && !strcmp(departure_loc, cached_flights[i]->departure)) {
-			while (j < 9) {
+			while (j < limit_found_flights -1) {
 				array[j] = i;
 				j++;
 				i++;
@@ -161,7 +171,6 @@ int find_flight(int flight_num) { // finds a flight in the cached_flights array 
 	for (int i = 0; i < num_flights; i++) {
 		if (cached_flights[i]->flight_number == flight_num) { return i; }
 	}
-
 	return -1;
 }
 
@@ -169,29 +178,27 @@ void cancel_flight(int index) {
 	num_flights--;
 	if (num_flights == 0) {
 		free(cached_flights[index]);
-		cached_flights[index] = NULL;
 		free(cached_flights);
-		cached_flights = NULL;
 		return;
 	}
 
 	cached_flights[index] = cached_flights[num_flights];
-	//cached_flights[index]->seats = cached_flights[num_flights]->seats;
-	struct Flight** temp = realloc(cached_flights, (sizeof(struct Flight*)) * num_flights);
-	error_handler(101, temp, NULL);
-	cached_flights = temp;
+	struct Flight** temporary_cached_flights = realloc(cached_flights, (sizeof(struct Flight*)) * num_flights);
+	error_handler(101, temporary_cached_flights, NULL);
+	cached_flights = temporary_cached_flights;
 	printf("%p\n", cached_flights[index]);
-	temp = NULL;
+	temporary_cached_flights = NULL;
 }
 
 void cancel_reservation(int flight_number, char* seat) {
 	num_reservations--;
-	int reserv = find_reservation(flight_number, seat, NULL);
+	int selected_reservation = find_reservation(flight_number, seat, NULL);
 
-	cached_reservations[reserv] = cached_reservations[num_reservations];
-	struct Reservation* temp = realloc(cached_reservations, (sizeof(struct Reservation) + 1) * num_reservations);
-	cached_reservations = temp;
-	temp = NULL;
+	cached_reservations[selected_reservation] = cached_reservations[num_reservations];
+	struct Reservation* temporary_cached_reservations = realloc(cached_reservations, (sizeof(struct Reservation) + 1) * num_reservations);
+	error_handler(101, temporary_cached_reservations, NULL);
+	cached_reservations = temporary_cached_reservations;
+	temporary_cached_reservations = NULL;
 }
 	
 void cancel_reservation_ui(void){
@@ -199,8 +206,9 @@ void cancel_reservation_ui(void){
 		int* reservations;
 		int out = -1;
 		int* count = malloc(sizeof(int));
+		error_handler(101, count, NULL);
 		int f_num;
-		char seat[seat_length];
+		char seat[SEAT_LENGTH];
 	case 11: //User
 		do {
 			printf("Enter flight number of reservation you want to cancel:\n");
@@ -213,7 +221,7 @@ void cancel_reservation_ui(void){
 			}
 			do {
 				printf("Enter seat number of reservation you want to cancel:\n");
-				fgets(seat, seat_length, stdin);
+				fgets(seat, SEAT_LENGTH, stdin);
 				seat[strcspn(seat, "\n")] = 0;
 				out = find_reservation(f_num, seat, current_user.uid);
 			} while (out == -1);
@@ -270,41 +278,49 @@ void show_reservation(struct Reservation reservation) {
 }
 
 
-void manual_add_flight(void) {
-	bool out = false;
+void add_flight(void) {
+	bool correct_flight_number;
 	char* buf = malloc(20);
 	current_flight = malloc(sizeof(struct Flight*));
+	error_handler(101, current_flight, NULL);
+
 	get_destination_ui();
-	strcpy_s(current_flight->destination, location_length, destination_loc);
+	strcpy_s(current_flight->destination, LOCATION_LENGTH, destination_loc);
+
 	get_departure_ui();
-	strcpy_s(current_flight->departure, location_length, departure_loc);
+	strcpy_s(current_flight->departure, LOCATION_LENGTH, departure_loc);
+
 	do {
 		printf("Enter flight number(4 digits):");
 		if (!read_and_scan_int(&current_flight->flight_number)) {
 			printf("NaN\n");
-			out = true;
+			correct_flight_number = true;
 			continue;
 		}
 		if (current_flight->flight_number < 1000 || current_flight->flight_number > 9999) {
-			out = true;
+			correct_flight_number = true;
+			clean_stdin();
 			continue;
 		}
-		out = false;
-	} while (out == true);
+		correct_flight_number = false;
+	} while (correct_flight_number == true);
 
-	printf("Enter number of seats: ");
-	if (!read_and_scan_int(&current_flight->num_seats)) {
+	printf("Enter number of available seats: ");
+	if (!read_and_scan_int(&current_flight->number_of_seats)) {
 		printf("NaN\n");
 	}
-	printf("%d\n", current_flight->num_seats);
-	current_flight->seats = malloc(sizeof(char*) * current_flight->num_seats);
-	error_handler(101, current_flight->seats, 1005);
-	for (int i = 0; i < current_flight->num_seats; i++) {
-		current_flight->seats[i] = malloc(seat_length);
+	printf("%d\n", current_flight->number_of_seats);
+
+	current_flight->available_seats = malloc(sizeof(char*) * current_flight->number_of_seats);
+	error_handler(101, current_flight->available_seats, 1005);
+
+	for (int i = 0; i < current_flight->number_of_seats; i++) {
+		current_flight->available_seats[i] = malloc(SEAT_LENGTH);
+		error_handler(101, current_flight->available_seats[i], NULL);
 		printf("Enter seat %d: ", i + 1);
-		fgets(buf, seat_length, stdin);
+		fgets(buf, SEAT_LENGTH, stdin);
 		buf[strcspn(buf, "\n")] = 0;
-		strcpy_s(current_flight->seats[i], seat_length, buf);
+		strcpy_s(current_flight->available_seats[i], SEAT_LENGTH, buf);
 	}
 	free(buf);
 }
@@ -315,4 +331,22 @@ int read_and_scan_int(int* out) {
 	if (!fgets(line, sizeof line, stdin) || sscanf_s(line, " %d %n", out, &chars) != 1 || line[chars] != 0)
 		return 0;
 	return 1;
+}
+
+bool scan_string(char* string) {
+	if (strlen(string) <= 0) { return false; }
+	if (!strchr(string, '\n')) {
+		string[0] = '\0';
+		clean_stdin();
+		return false;
+	}
+	string[strcspn(string, "\n")] = '\0';
+	for (int i = 0; i < strlen(string); i++) {
+		if (string[i] == '\0') { return true; }
+		if (!isalpha(string[i])) {
+			string[0] = '\0';
+			return false;
+		}
+	}
+	return true;
 }
