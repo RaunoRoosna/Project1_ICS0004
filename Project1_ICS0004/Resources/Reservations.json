@@ -1,0 +1,35 @@
+{
+  "num_reservations":6,
+  "reservations":[
+    {
+      "uid":2,
+      "flight_number":8258,
+      "seat":"7E"
+    },
+    {
+      "uid":2,
+      "flight_number":5531,
+      "seat":"1F"
+    },
+    {
+      "uid":2,
+      "flight_number":1844,
+      "seat":"8A"
+    },
+    {
+      "uid":2,
+      "flight_number":3925,
+      "seat":"2C"
+    },
+    {
+      "uid":2,
+      "flight_number":1198,
+      "seat":"9C"
+    },
+    {
+      "uid":2,
+      "flight_number":3108,
+      "seat":"1A"
+    }
+  ]
+}

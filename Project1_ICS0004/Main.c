@@ -2,9 +2,6 @@
 #include "DataManager.h"
 #include "UI.h"
 #include <ctype.h>
-char user_action;
-char admin_action;
-char switch_action;
 int selected_flight;
 
 int main() {
@@ -12,109 +9,35 @@ int main() {
 	deserialise_flights_from_json();
 	deserialise_reservations_from_json();
 
-	get_username_ui();
+	int access = get_username_menu();
 	switch (access) {
 
 	case 11: // User access granted
+	{
+		char switch_action = get_reserve_view_menu();
 
-		get_reserve_view_ui();
-
-		int* reservations = NULL;
-		int* count = malloc(sizeof(int));
-		error_handler(101, count, NULL);
-		*count = 0;
-
-		switch (user_action) {
+		switch (switch_action) {
 		case 'r':
-			do {
-				get_destination_ui();
-				get_departure_ui();
-			} while (!strcmp(destination_loc, departure_loc));
-
-			get_reservation_ui();
-
-			write_flights_to_file();
-			write_reservations_to_file();
-			free(current_flight);
+			display_reservation_menu();
 			break;
 		case 'v':
-			find_reservations(NULL, current_user.uid, &reservations, count);
-			for (int i = 0; i < *count; i++) {
-				show_reservation(cached_reservations[reservations[i]]);
-			}
-			if (reservations != NULL) {
-			free(reservations);
-			}
-			if (count != NULL) {
-			free(count);
-			}
-			break;
+			display_user_view_menu();
 		}
 		exit(0);
 		break;
-	
+	}
 	case 10: // Admin access 
 		while (true) {
-			get_view_modify_ui();
+			char admin_action = get_view_modify_menu();
 
 			switch (admin_action) {
-				int index;
 
 			case 'v': // show all fligths in cached_flights array
-				get_all_search_ui();
-
-				switch (switch_action) {
-				case 'a':
-					for (int i = 0; i < num_flights; i++) {
-						show_flight(*cached_flights[i]);
-					}
-					continue;
-
-				case 's':
-					get_dnd_flightnum_ui();
-
-					switch (switch_action) {
-					case 'd':
-						get_destination_ui();
-						get_departure_ui();
-
-						int array[10] = { 0 };
-						int elements[1] = { 0 };
-						find_existing_flights(array, elements);
-						if (elements == 0) {
-							printf("No such flight exists");
-						}
-						else {
-							for (int i = 0; i < elements[0]; i++) {
-								show_flight(*cached_flights[array[i]]);
-							}
-						}
-						continue;
-
-					case 'f':
-						index = get_flightnum_ui(selected_flight);
-						show_flight(*cached_flights[index]);
-						continue;
-					}
-				}
+				display_view_menu();
+				continue;
 			case 'm':
-				get_add_delete_ui();
-
-				switch (switch_action) {
-				case 'a':
-					add_flight();
-					flight_to_cache();
-					write_flights_to_file();
-					continue;
-
-				case 'd':
-					index = get_flightnum_ui(selected_flight);
-					printf("%d\n", index);
-					cancel_flight(index);
-					write_flights_to_file();
-					write_reservations_to_file();
-					continue;
-				}
+				display_modify_menu();
+				continue;
 			case 'e':
 				exit(0);
 			}
@@ -128,50 +51,58 @@ int main() {
 	return 0;
 }
 
-void get_username_ui(void) {
+int get_username_menu(void) {
+	int access;
 	do {
 		printf("Username: ");
 		fgets(username, sizeof(username), stdin);
 		username[strcspn(username, "\n")] = 0;
 		access = check_user(username);
 	} while (access == 1);
+	return access;
 }
-void get_reserve_view_ui(void) {
+char get_reserve_view_menu(void) {
+	char switch_action;
 	do {
 		printf("reserve a seat on a flight/view reservations(r/v):");
-		user_action = getchar();	
+		switch_action = getchar();	
 		clean_stdin();
-	} while (user_action != 'r' && user_action != 'v');
+	} while (switch_action != 'r' && switch_action != 'v');
+	return switch_action;
 }
 
-void get_destination_ui(void) {
+char* get_destination_menu(void) {
+	char destination_loc[LOCATION_LENGTH];
 	bool correct_destination = false;
 	do {
 		printf("Destination:"); 
 		fgets(destination_loc, LOCATION_LENGTH, stdin);
 		correct_destination = scan_string(destination_loc);
 	} while (!correct_destination);
+	return destination_loc;
 }
 
-void get_departure_ui(void) {
+char* get_departure_menu(void) {
+	char departure_location[LOCATION_LENGTH];
 	bool correct_departure = false;
 	do {
 		printf("Departure:");
-		fgets(departure_loc, LOCATION_LENGTH, stdin);
-		correct_departure = scan_string(departure_loc);
+		fgets(departure_location, LOCATION_LENGTH, stdin);
+		correct_departure = scan_string(departure_location);
 	} while (!correct_departure);
+	return departure_location;
 }
 
-void random_flight_generation(void) {
-	generate_flight(&current_flight);
-	show_flight(*current_flight);
+void random_flight_generation(char* destination_loc, char* departure_loc) {
+	generate_flight(&current_flight, destination_loc, departure_loc);
+	show_flight(current_flight);
 	reserve_seat(&current_flight);
 	flight_to_cache();
 }
 
-void get_flight_ui(int array[], int* elements) {
+void flight_menu(int array[], int* elements) {
 	for (int i = 0; i < *elements; i++) {
-		show_flight(*cached_flights[array[i]]);
+		show_flight(cached_flights[array[i]]);
 	}
 
 	int selected_flight;
@@ -185,51 +116,56 @@ void get_flight_ui(int array[], int* elements) {
 		for (int j = 0; j < *elements; j++) {
 			if (selected_flight == cached_flights[array[j]]->flight_number) {
 				correct_flight_number = false;
-				reserve_seat(cached_flights[array[j]]);
+				reserve_seat(&cached_flights[array[j]]);
 			}
 		}
-		
 	} while (!correct_flight_number);
 }
 
-void get_reservation_ui(void) {
+void reservation_menu(char* destination_loc, char* departure_loc) {
 	int array[10] = { 0 };
 	int* elements = malloc(sizeof(int));
 	*elements = 0;
-	find_existing_flights(array, elements);
+	find_existing_flights(array, elements, destination_loc, departure_loc);
 	if (*elements == 0) {
-		random_flight_generation();
+		random_flight_generation(destination_loc, departure_loc);
 	}
 	else {
-		get_flight_ui(array, elements);
+		flight_menu(array, elements);
 	}
 }
 
-void get_view_modify_ui(void) {
+char get_view_modify_menu(void) {
+	char admin_action;
 	do {
 		printf("view flights/modify flights (v/m):");
 		admin_action = getchar();
 		clean_stdin();
 	} while (admin_action != 'v' && admin_action != 'm' && admin_action != 'e');
+	return admin_action;
 }
 
-void get_all_search_ui(void) {
+char get_all_search_menu(void) {
+	char switch_action;
 	do {
 		printf("show all flights/search for flights (a/s):");
 		switch_action = getchar();
 		clean_stdin();
 	} while (switch_action != 'a' && switch_action != 's');
+	return switch_action;
 }
 
-void get_dnd_flightnum_ui(void) {
+char get_dnd_flightnum_menu(void) {
+	char switch_action;
 	do {	
 		printf("By destination and departure/by flight number (d/f):");
 		switch_action = getchar();
 		clean_stdin();
 	} while (switch_action != 'd' && switch_action != 'f');
+	return switch_action;
 }
 
-int get_flightnum_ui(int selected_flight) {
+int get_flightnum_menu(int selected_flight) {
 	bool index = false;
 	do {
 		printf("Enter flight number:");
@@ -242,10 +178,116 @@ int get_flightnum_ui(int selected_flight) {
 	return index;
 }
 
-void get_add_delete_ui(void) {
+char get_add_delete_menu(void) {
+	char switch_action;
 	do {
 		printf("add flight/delete flight (a/d):");
 		switch_action = getchar();
 		clean_stdin();
 	} while (switch_action != 'a' && switch_action != 'd');
+	return switch_action;
+}
+
+void case_dnd(void) {
+	char destination_loc[LOCATION_LENGTH];
+	char departure_loc[LOCATION_LENGTH];
+	do {
+		strcpy_s(destination_loc, LOCATION_LENGTH, get_destination_menu());
+		strcpy_s(departure_loc, LOCATION_LENGTH, get_departure_menu());
+	} while (!strcmp(destination_loc, departure_loc));
+
+	int array[10] = { 0 };
+	int elements[1] = { 0 };
+	find_existing_flights(array, elements, destination_loc, departure_loc);
+	if (elements == 0) {
+		printf("No such flight exists");
+	}
+	else {
+		for (int i = 0; i < elements[0]; i++) {
+			show_flight(cached_flights[array[i]]);
+		}
+	}
+}
+
+void case_search(void) {
+	char switch_action = get_dnd_flightnum_menu();
+	int index;
+
+	switch (switch_action) {
+	case 'd':
+		case_dnd();
+		break;
+	case 'f':
+		index = get_flightnum_menu(selected_flight);
+		show_flight(cached_flights[index]);
+		break;
+	}
+}
+
+void display_modify_menu(void) {
+	char switch_action = get_add_delete_menu();
+	switch (switch_action) {
+	case 'a':
+		add_flight();
+		flight_to_cache();
+		write_flights_to_file();
+		break;
+	case 'd':
+	{
+		int index = get_flightnum_menu(selected_flight);
+		printf("%d\n", index);
+		cancel_flight(index);
+		write_flights_to_file();
+		write_reservations_to_file();
+		break;
+	}
+	}
+}
+
+void display_view_menu(void) {
+	char switch_action = get_all_search_menu();
+	switch (switch_action) {
+	case 'a':
+		for (int i = 0; i < num_flights; i++) {
+			show_flight(cached_flights[i]);
+		}
+		break;
+
+	case 's':
+		case_search();
+		break;
+	}
+}
+
+void display_reservation_menu(void) {
+	char destination_loc[LOCATION_LENGTH];
+	char departure_loc[LOCATION_LENGTH];
+	do {
+		strcpy_s(destination_loc, LOCATION_LENGTH, get_destination_menu());
+		strcpy_s(departure_loc, LOCATION_LENGTH, get_departure_menu());
+	} while (!strcmp(destination_loc, departure_loc));
+
+	reservation_menu(destination_loc, departure_loc);
+
+	write_flights_to_file();
+	write_reservations_to_file();
+	free(current_flight);
+}
+
+void display_user_view_menu(void) {
+	int* reservations = NULL;
+	int* count = malloc(sizeof(int));
+	error_handler(101, count, NULL);
+	*count = 0;
+
+	find_reservations(NULL, current_user.uid, &reservations, count);
+	for (int i = 0; i < *count; i++) {
+		show_reservation(cached_reservations[reservations[i]], 11);
+	}
+	if (reservations != NULL) {
+		free(reservations);
+	}
+	if (count != NULL) {
+		free(count);
+	}
 }

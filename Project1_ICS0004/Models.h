@@ -1,8 +1,8 @@
 #pragma once
 #include <stdlib.h>
 
-#define SEAT_LENGTH 6
-#define LOCATION_LENGTH 20
+#define SEAT_LENGTH 3 // 2 chars + \0
+#define LOCATION_LENGTH 21 // 20 chars + \0
 
 struct Flight {
 	char destination[LOCATION_LENGTH];
@@ -26,11 +26,8 @@ struct Reservation {
 	char seat[SEAT_LENGTH];
 };
 
-char destination_loc[LOCATION_LENGTH];
-char departure_loc[LOCATION_LENGTH];
 char selected_seat[SEAT_LENGTH];
 char username[20];
-int access;
 
 int num_flights;
 int num_reservations;

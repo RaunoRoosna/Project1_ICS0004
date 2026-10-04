@@ -46,10 +46,10 @@
     <None Include="Resources\Users.json">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Flights.json">
+    <None Include="Resources\Flights.json">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Reservations.json">
+    <None Include="Resources\Reservations.json">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -44,10 +44,9 @@ json_object* serialise_flights_to_json(void) {
 
 void write_flights_to_file(void) {
 	json_object* flights_json = serialise_flights_to_json();
-	printf("100\n");
 	// Open file for writing
 	FILE* fp;
-	fopen_s(&fp, "Flights.json", "w");
+	fopen_s(&fp, "Resources/Flights.json", "w");
 	error_handler(101, fp, NULL);
 	// Write to file
 	const char* json_string = json_object_to_json_string_ext(flights_json, JSON_C_TO_STRING_PRETTY);
@@ -63,7 +62,7 @@ void write_flights_to_file(void) {
     
 char* read_flights_from_file(void) {
 	FILE* fp;
-	fopen_s(&fp, "Flights.json", "r");
+	fopen_s(&fp, "Resources/Flights.json", "r");
 	error_handler(101, fp, NULL);
 
 	fseek(fp, 0, SEEK_END);
@@ -129,10 +128,9 @@ void deserialise_flights_from_json(void) {
 			// Deserialize each seat
 			for (int j = 0; j < cached_flights[i]->number_of_seats; j++) {
 				json_object* seat_obj = json_object_array_get_idx(seats_array, j);
-				cached_flights[i]->available_seats[j] = malloc(SEAT_LENGTH);
+				cached_flights[i]->available_seats[j] = malloc(SEAT_LENGTH * sizeof(char));
 				error_handler(101, cached_flights[i]->available_seats[j], 1004);
 				strcpy_s(cached_flights[i]->available_seats[j], SEAT_LENGTH, json_object_get_string(seat_obj));
-				json_object_put(seat_obj);
 			}
 	}
 	json_object_put(root);
@@ -169,7 +167,7 @@ void write_reservations_to_file(void) {
 
 	// Open file for writing
 	FILE* fp;
-	fopen_s(&fp, "Reservations.json", "w");
+	fopen_s(&fp, "Resources/Reservations.json", "w");
 	error_handler(101, fp, NULL);
 
 	// Write to file
@@ -189,7 +187,7 @@ void write_reservations_to_file(void) {
 char* read_reservations_from_file(void) {
 
 	FILE* fp;
-	fopen_s(&fp, "Reservations.json", "r");
+	fopen_s(&fp, "Resources/Reservations.json", "r");
 	error_handler(101, fp, NULL);
 
 	fseek(fp, 0, SEEK_END);
