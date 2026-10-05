@@ -9,12 +9,12 @@ int main() {
 	deserialise_flights_from_json();
 	deserialise_reservations_from_json();
 
-	int access = get_username_menu();
+	int access = prompt_get_username_menu();
 	switch (access) {
 
 	case 11: // User access granted
 	{
-		char switch_action = get_reserve_view_menu();
+		char switch_action = prompt_get_reserve_view_menu();
 
 		switch (switch_action) {
 		case 'r':
@@ -28,7 +28,7 @@ int main() {
 	}
 	case 10: // Admin access 
 		while (true) {
-			char admin_action = get_view_modify_menu();
+			char admin_action = prompt_get_view_modify_menu();
 
 			switch (admin_action) {
 
@@ -54,7 +54,7 @@ int main() {
 	return 0;
 }
 
-int get_username_menu(void) {
+int prompt_get_username_menu(void) {
 	int access;
 	char username[20];
 	bool validated_string = false;
@@ -66,7 +66,7 @@ int get_username_menu(void) {
 	return check_user(username);
 }
 
-char get_reserve_view_menu(void) {
+char prompt_get_reserve_view_menu(void) {
 	char switch_action;
 	do {
 		printf("reserve a seat on a flight/view reservations(r/v):");
@@ -76,7 +76,7 @@ char get_reserve_view_menu(void) {
 	return switch_action;
 }
 
-char* get_destination_menu(void) {
+char* prompt_get_destination_menu(void) {
 	char destination_loc[LOCATION_LENGTH];
 	bool correct_destination = false;
 	do {
@@ -87,7 +87,7 @@ char* get_destination_menu(void) {
 	return destination_loc;
 }
 
-char* get_departure_menu(void) {
+char* prompt_get_departure_menu(void) {
 	char departure_location[LOCATION_LENGTH];
 	bool correct_departure = false;
 	do {
@@ -141,7 +141,7 @@ void reservation_menu(char* destination_loc, char* departure_loc) {
 	}
 }
 
-char get_view_modify_menu(void) {
+char prompt_get_view_modify_menu(void) {
 	char admin_action;
 	do {
 		printf("view flights/modify flights (v/m):");
@@ -151,7 +151,7 @@ char get_view_modify_menu(void) {
 	return admin_action;
 }
 
-char get_all_search_menu(void) {
+char prompt_get_all_search_menu(void) {
 	char switch_action;
 	do {
 		printf("show all flights/search for flights (a/s):");
@@ -161,7 +161,7 @@ char get_all_search_menu(void) {
 	return switch_action;
 }
 
-char get_dnd_flightnum_menu(void) {
+char prompt_get_destination_and_departure_or_flightnum_menu(void) {
 	char switch_action;
 	do {	
 		printf("By destination and departure/by flight number (d/f):");
@@ -171,7 +171,7 @@ char get_dnd_flightnum_menu(void) {
 	return switch_action;
 }
 
-int get_flightnum_menu(int selected_flight) {
+int prompt_get_flightnum_menu(int selected_flight) {
 	int index = -1;
 	do {
 		printf("Enter flight number:");
@@ -184,7 +184,7 @@ int get_flightnum_menu(int selected_flight) {
 	return index;
 }
 
-char get_add_delete_menu(void) {
+char prompt_get_add_delete_menu(void) {
 	char switch_action;
 	do {
 		printf("add flight/delete flight (a/d):");
@@ -194,12 +194,12 @@ char get_add_delete_menu(void) {
 	return switch_action;
 }
 
-void case_dnd(void) {
+void show_search_by_destination_and_departure_menu(void) { // rename
 	char destination_loc[LOCATION_LENGTH];
 	char departure_loc[LOCATION_LENGTH];
 	do {
-		strcpy_s(destination_loc, LOCATION_LENGTH, get_destination_menu());
-		strcpy_s(departure_loc, LOCATION_LENGTH, get_departure_menu());
+		strcpy_s(destination_loc, LOCATION_LENGTH, prompt_get_destination_menu());
+		strcpy_s(departure_loc, LOCATION_LENGTH, prompt_get_departure_menu());
 	} while (!strcmp(destination_loc, departure_loc));
 
 	int array[10] = { 0 };
@@ -215,23 +215,23 @@ void case_dnd(void) {
 	}
 }
 
-void case_search(void) {
-	char switch_action = get_dnd_flightnum_menu();
+void show_search_menu(void) {
+	char filter = prompt_get_destination_and_departure_or_flightnum_menu();
 	int index;
 
-	switch (switch_action) {
-	case 'd':
-		case_dnd();
+	switch (filter) {
+	case 'd': // search by destination and departure
+		show_search_by_destination_and_departure_menu();
 		break;
-	case 'f':
-		index = get_flightnum_menu(selected_flight);
+	case 'f': // search by flight number
+		index = prompt_get_flightnum_menu(selected_flight);
 		show_flight(cached_flights[index]);
 		break;
 	}
-}
+}	
 
 void display_modify_menu(void) {
-	char switch_action = get_add_delete_menu();
+	char switch_action = prompt_get_add_delete_menu();
 	switch (switch_action) {
 	case 'a':
 		add_flight();
@@ -240,7 +240,7 @@ void display_modify_menu(void) {
 		break;
 	case 'd':
 	{
-		int index = get_flightnum_menu(selected_flight);
+		int index = prompt_get_flightnum_menu(selected_flight);
 		printf("%d\n", index);
 		cancel_flight(index);
 		write_flights_to_file();
@@ -251,7 +251,7 @@ void display_modify_menu(void) {
 }
 
 void display_view_menu(void) {
-	char switch_action = get_all_search_menu();
+	char switch_action = prompt_get_all_search_menu();
 	switch (switch_action) {
 	case 'a':
 		for (int i = 0; i < num_flights; i++) {
@@ -260,7 +260,7 @@ void display_view_menu(void) {
 		break;
 
 	case 's':
-		case_search();
+		show_search_menu();
 		break;
 	}
 }
@@ -269,8 +269,8 @@ void display_reservation_menu(void) {
 	char destination_loc[LOCATION_LENGTH];
 	char departure_loc[LOCATION_LENGTH];
 	do {
-		strcpy_s(destination_loc, LOCATION_LENGTH, get_destination_menu());
-		strcpy_s(departure_loc, LOCATION_LENGTH, get_departure_menu());
+		strcpy_s(destination_loc, LOCATION_LENGTH, prompt_get_destination_menu());
+		strcpy_s(departure_loc, LOCATION_LENGTH, prompt_get_departure_menu());
 	} while (!strcmp(destination_loc, departure_loc));
 
 	reservation_menu(destination_loc, departure_loc);
@@ -297,3 +297,5 @@ void display_user_view_menu(void) {
 		free(count);
 	}
 }
+
+// make input_utils.c

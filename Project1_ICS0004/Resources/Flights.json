@@ -1,5 +1,5 @@
 {
-  "num_flights":1,
+  "num_flights":3,
   "flights":[
     {
       "destination":"faswga",
@@ -9,6 +9,27 @@
       "seats":[
         "2A",
         "9B"
+      ]
+    },
+    {
+      "destination":"njakwjn",
+      "departure":"sfi",
+      "num_seats":1,
+      "flight_number":1568,
+      "seats":[
+        "1A"
+      ]
+    },
+    {
+      "destination":"fjawk",
+      "departure":"awih",
+      "num_seats":4,
+      "flight_number":1586,
+      "seats":[
+        "4B",
+        "2C",
+        "9A",
+        "2B"
       ]
     }
   ]

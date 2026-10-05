@@ -6,6 +6,7 @@ json_object* serialise_flights_to_json(void) {
 		error_handler(100, NULL, 1000);
 	}
 	if (num_flights == 0) {
+		printf("Flights successfully written to flights.json.\n");
 		return;
 	}
 	json_object* root = json_object_new_object();
@@ -143,7 +144,8 @@ json_object* serialise_reservations_to_json(void) {
 	}
 
 	if (num_reservations == 0) {
-		return NULL;
+		printf("Reservations successfully written to reservations.json.\n");
+		return;
 	}
 	json_object* root = json_object_new_object();
 	json_object* reservations_array = json_object_new_array_ext(num_reservations);

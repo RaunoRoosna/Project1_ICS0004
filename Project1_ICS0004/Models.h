@@ -26,8 +26,6 @@ struct Reservation {
 	char seat[SEAT_LENGTH];
 };
 
-char selected_seat[SEAT_LENGTH +1];
-
 int num_flights;
 int num_reservations;
 
