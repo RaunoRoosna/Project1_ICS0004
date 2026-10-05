@@ -57,41 +57,48 @@ void generate_flight(struct Flight** flight, char* destination_loc, char* depart
 }
 
 void reserve_seat(struct Flight** flight) { // Removes the seat from flight struct and reallocates the memory for the seats array
-	printf("Choose the seat you want to book: ");
-	fgets(selected_seat, sizeof(selected_seat), stdin);
-	selected_seat[strcspn(selected_seat, "\n")] = 0;
+	bool validated_string = false;
+	bool seat_exists = false;
+	int i;
+	do {
+		printf("Choose the seat you want to book: ");
+		fgets(selected_seat, SEAT_LENGTH +1, stdin);
+		if (strlen(selected_seat) < SEAT_LENGTH -1) {
+			continue;
+		}
+		validated_string = validate_string(selected_seat);
 
-	for (int i = 0; i < (*flight)->number_of_seats; i++) {
-		if ((*flight)->available_seats[i] != NULL && strcmp((*flight)->available_seats[i], selected_seat) == 0) {
-			printf("You have booked seat %s on flight from %s to %s\n", selected_seat, (*flight)->departure, (*flight)->destination);
-			(*flight)->number_of_seats--;
-			reservation_to_cache(*flight);
-
-			for (int j = i; j < (*flight)->number_of_seats; j++) { // overrides deleted seat with the next seat in the array
-				(*flight)->available_seats[j] = (*flight)->available_seats[j + 1];
+		for (i = 0; i < (*flight)->number_of_seats; i++) {
+			if (!strcmp((*flight)->available_seats[i], selected_seat)) {
+				seat_exists = true;
+				break;
 			}
-			char** temp = realloc((*flight)->available_seats, ((*flight)->number_of_seats) * sizeof(char*));
-			error_handler(101, temp, 4);
-			(*flight)->available_seats = temp;
-			temp = NULL;
-			break;
 		}
-		else {
+	} while (!validated_string || !seat_exists);
 
-		}
+	printf("You have booked seat %s on flight from %s to %s\n", selected_seat, (*flight)->departure, (*flight)->destination);
+	(*flight)->number_of_seats--;
+	reservation_to_cache(*flight);
+
+	for (int j = i; j < (*flight)->number_of_seats; j++) { // overrides deleted seat with the next seat in the array
+		(*flight)->available_seats[j] = (*flight)->available_seats[j + 1];
 	}
+	char** temp = realloc((*flight)->available_seats, ((*flight)->number_of_seats) * sizeof(char*));
+	error_handler(101, temp, 4);
+	(*flight)->available_seats = temp;
+	temp = NULL;
 }
 
 int check_user(char* username) { // checks if the user exists
-	if (strcmp(username, admin.username) == 0) {
+	if (!strcmp(username, admin.username)) {
 		return 10;
 	}
-	else if (strcmp(username, user1.username) == 0) {
+	else if (!strcmp(username, user1.username)) {
 		current_user = user1;
 		return 11;
 	}
-	else if (strcmp(username, "exit") == 0) {
-		return 0;
+	else if (!strcmp(username, "exit")) {
+		exit(0);
 	}
 	else { return 1; }
 }
@@ -101,7 +108,6 @@ void clean_stdin(void) { // cleans stdin buffer
 	do {
 		c = getchar();
 	} while (c != '\n' && c != EOF);
-	
 }
 
 void show_flight(struct Flight* flight) { // Shows the flight information to the user
@@ -210,41 +216,41 @@ void cancel_reservation(int flight_number, char* seat) {
 	cached_reservations = temporary_cached_reservations;
 	temporary_cached_reservations = NULL;
 }
+
+void cancel_reservations(int flight_number) { // cancel all reservations for a flight
+	for (int i = 0; i < num_reservations; i++) {
+		if (cached_reservations[i].flight_number == flight_number) {
+			cancel_reservation(flight_number, cached_reservations[i].seat);
+			i--; // Adjust index after removal
+		}
+	}
+}
 	
 void cancel_reservation_ui(access){
-	switch (access){
-		int* reservations;
-		int out = -1;
-		int* count = malloc(sizeof(int));
-		error_handler(101, count, NULL);
-		int f_num;
-		char seat[SEAT_LENGTH];
-	case 11: //User
+	int* reservations;
+	int reservation_index = -1;
+	int* count = malloc(sizeof(int));
+	error_handler(101, count, NULL);
+	int f_num;
+	char seat[SEAT_LENGTH];
+	do {
+		printf("Enter flight number of reservation you want to cancel:\n");
+		if (!read_and_scan_int(&f_num)) { 
+			continue; 
+		}
+		find_reservations(f_num, current_user.uid, &reservations, &count);
+		for (int i = 0; i < count; i++) {
+			show_reservation(cached_reservations[reservations[i]], access);
+		}
 		do {
-			printf("Enter flight number of reservation you want to cancel:\n");
-			if (!read_and_scan_int(&f_num)) { 
-				continue; 
-			}
-			find_reservations(f_num, current_user.uid, &reservations, &count);
-			for (int i = 0; i < count; i++) {
-				show_reservation(cached_reservations[reservations[i]], 11);
-			}
-			do {
-				printf("Enter seat number of reservation you want to cancel:\n");
-				fgets(seat, SEAT_LENGTH, stdin);
-				seat[strcspn(seat, "\n")] = 0;
-				out = find_reservation(f_num, seat, current_user.uid);
-			} while (out == -1);
-			cancel_reservation(f_num, seat);
+			printf("Enter seat number of reservation you want to cancel:\n");
+			fgets(seat, SEAT_LENGTH, stdin);
+			if (!validate_string(seat)) { continue; }
+			reservation_index = find_reservation(f_num, seat, current_user.uid);
+		} while (reservation_index == -1);
+		cancel_reservation(f_num, seat);
 
-		} while (out == -1);
-
-
-		break;
-	case 10: //Admin
-		
-		break;
-	}
+	} while (reservation_index == -1);
 }
 
 int find_reservation(int flight_number, char* seat, int uid) {
@@ -289,7 +295,7 @@ void show_reservation(struct Reservation reservation, int access) {
 
 
 void add_flight(void) {
-	bool correct_flight_number;
+	bool correct_flight_number = false;
 	char* buf = malloc(20);
 	current_flight = malloc(sizeof(struct Flight));
 	error_handler(101, current_flight, NULL);
@@ -304,22 +310,31 @@ void add_flight(void) {
 		printf("Enter flight number(4 digits):");	
 		if (!read_and_scan_int(&current_flight->flight_number)) {
 			printf("NaN\n");
-			correct_flight_number = true;
+			correct_flight_number = false;
 			continue;
 		}
 		if (current_flight->flight_number < 1000 || current_flight->flight_number > 9999) {
-			correct_flight_number = true;
+			correct_flight_number = false;
+			printf("Error: Invalid flight number. Please enter a 4-digit flight number.\n");
 			clean_stdin();
-			continue;
+			continue;	
 		}
-		correct_flight_number = false;
-	} while (correct_flight_number == true);
+		if (cached_flights != NULL) {
+			for (int i = 0; i < num_flights; i++) { //Checks if the flight number is already in use
+				if (current_flight->flight_number == cached_flights[i]->flight_number) {
+					correct_flight_number = false;
+					printf("Error: Flight number already exists. Please enter a different flight number.\n");
+					break;
+				}
+			}
+		}
+		correct_flight_number = true;
+	} while (!correct_flight_number);
 
 	printf("Enter number of available seats: ");
 	if (!read_and_scan_int(&current_flight->number_of_seats)) {
 		printf("NaN\n");
 	}
-	printf("%d\n", current_flight->number_of_seats);
 
 	current_flight->available_seats = malloc(sizeof(char*) * current_flight->number_of_seats);
 	error_handler(101, current_flight->available_seats, 1005);
@@ -328,8 +343,23 @@ void add_flight(void) {
 		current_flight->available_seats[i] = malloc(SEAT_LENGTH * sizeof(char));
 		error_handler(101, current_flight->available_seats[i], NULL);
 		printf("Enter seat %d: ", i + 1);
-		fgets(buf, SEAT_LENGTH, stdin);
-		buf[strcspn(buf, "\n")] = 0;
+		fgets(buf, SEAT_LENGTH +1, stdin);
+		if (!validate_string(buf)) {
+			i--; // Retry entering the same seat
+			continue;
+		}
+		bool duplicate = false;
+		for (int j = 0; j < i; j++) {  // Check for duplicates
+			if (!strcmp(buf, current_flight->available_seats[j])) {
+				duplicate = true;
+				break;
+			}
+		}
+		if (duplicate) {
+			printf("Error: Duplicate seat. Please enter a different seat.\n");
+			i--; // Retry entering the same seat
+			continue;
+		}
 		strcpy_s(current_flight->available_seats[i], SEAT_LENGTH, buf);
 	}
 	free(buf);
@@ -338,25 +368,53 @@ void add_flight(void) {
 int read_and_scan_int(int* out) {
 	static char line[100];
 	int chars = 0;
-	if (!fgets(line, sizeof line, stdin) || sscanf_s(line, " %d %n", out, &chars) != 1 || line[chars] != 0)
+	if (!fgets(line, sizeof line, stdin) || sscanf_s(line, " %d %n", out, &chars) != 1 || line[chars] != 0) {
+		if (strlen(line) > 22) {
+			clean_stdin();
+		}
 		return 0;
+	}
+	if (strlen(line) > 22) {
+		clean_stdin();
+	}
 	return 1;
 }
 
-bool scan_string(char* string) {
-	if (strlen(string) <= 0) { return false; }
+bool validate_alpha_string(char* string) {
+	if (!strchr(string, '\n')) {
+		string[0] = '\0';
+		printf("Error: Invalid input. Input exceeded maximum length.\n");
+		clean_stdin();
+		return false;
+	}
+	string[strcspn(string, "\n")] = '\0';
+	if (strlen(string) <= 0) { 
+		printf("Error: Invalid input. Please enter a string.\n");
+		return false; 
+	}
+	for (int i = 0; i < strlen(string); i++) {
+		if (string[i] == '\0') { 
+			return true;
+		}
+		if (!isalpha(string[i])) {
+			string[0] = '\0';
+			printf("Error: Invalid input. Please enter a string containing only letters.\n");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool validate_string(char* string) {
 	if (!strchr(string, '\n')) {
 		string[0] = '\0';
 		clean_stdin();
 		return false;
 	}
 	string[strcspn(string, "\n")] = '\0';
-	for (int i = 0; i < strlen(string); i++) {
-		if (string[i] == '\0') { return true; }
-		if (!isalpha(string[i])) {
-			string[0] = '\0';
-			return false;
-		}
+	if (strlen(string) <= 0) {
+		printf("Error: Invalid input. Please enter a string.\n");
+		return false;
 	}
 	return true;
 }

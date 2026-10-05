@@ -28,4 +28,5 @@ int read_and_scan_int( int* out);
 void show_reservation(struct Reservation reservation, int access);
 void cancel_reservation_ui(void);
 void add_flight(void);
-bool scan_string(char* string);
+bool validate_alpha_string(char* string);
+bool validate_string(char* string);

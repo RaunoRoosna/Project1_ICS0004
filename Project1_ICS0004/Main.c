@@ -42,6 +42,9 @@ int main() {
 				exit(0);
 			}
 		}
+	case 1:
+		printf("No such user exists");
+		exit(1);
 	}
 	
 	for (int i = 0; i < current_flight->number_of_seats; i++) {
@@ -53,14 +56,16 @@ int main() {
 
 int get_username_menu(void) {
 	int access;
+	char username[20];
+	bool validated_string = false;
 	do {
 		printf("Username: ");
 		fgets(username, sizeof(username), stdin);
-		username[strcspn(username, "\n")] = 0;
-		access = check_user(username);
-	} while (access == 1);
-	return access;
+		validated_string = validate_string(username);
+	} while (!validated_string);
+	return check_user(username);
 }
+
 char get_reserve_view_menu(void) {
 	char switch_action;
 	do {
@@ -75,9 +80,9 @@ char* get_destination_menu(void) {
 	char destination_loc[LOCATION_LENGTH];
 	bool correct_destination = false;
 	do {
-		printf("Destination:"); 
+		printf("Destination (limited to 20 characters):"); 
 		fgets(destination_loc, LOCATION_LENGTH, stdin);
-		correct_destination = scan_string(destination_loc);
+		correct_destination = validate_alpha_string(destination_loc);
 	} while (!correct_destination);
 	return destination_loc;
 }
@@ -86,9 +91,9 @@ char* get_departure_menu(void) {
 	char departure_location[LOCATION_LENGTH];
 	bool correct_departure = false;
 	do {
-		printf("Departure:");
+		printf("Departure (limited to 20 characters):");
 		fgets(departure_location, LOCATION_LENGTH, stdin);
-		correct_departure = scan_string(departure_location);
+		correct_departure = validate_alpha_string(departure_location);
 	} while (!correct_departure);
 	return departure_location;
 }
@@ -108,6 +113,7 @@ void flight_menu(int array[], int* elements) {
 	int selected_flight;
 	bool correct_flight_number = false;
 	do {
+		//clean_stdin();
 		printf("Choose flight (enter flight number):");
 		if (!read_and_scan_int(&selected_flight)) {
 			printf("NaN\n");
@@ -166,15 +172,15 @@ char get_dnd_flightnum_menu(void) {
 }
 
 int get_flightnum_menu(int selected_flight) {
-	bool index = false;
+	int index = -1;
 	do {
 		printf("Enter flight number:");
 		if (!read_and_scan_int(&selected_flight)) {
-			index = true;
+			index = -1;
 			continue;
 		}
 		index = find_flight(selected_flight);
-	} while (index == true);
+	} while (index == -1);
 	return index;
 }
 
@@ -199,8 +205,8 @@ void case_dnd(void) {
 	int array[10] = { 0 };
 	int elements[1] = { 0 };
 	find_existing_flights(array, elements, destination_loc, departure_loc);
-	if (elements == 0) {
-		printf("No such flight exists");
+	if (elements[0] == 0) {
+		printf("No such flight exists\n");
 	}
 	else {
 		for (int i = 0; i < elements[0]; i++) {

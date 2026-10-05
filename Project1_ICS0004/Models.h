@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #define SEAT_LENGTH 3 // 2 chars + \0
-#define LOCATION_LENGTH 21 // 20 chars + \0
+#define LOCATION_LENGTH 22 // 20 chars + \0
 
 struct Flight {
 	char destination[LOCATION_LENGTH];
@@ -26,8 +26,7 @@ struct Reservation {
 	char seat[SEAT_LENGTH];
 };
 
-char selected_seat[SEAT_LENGTH];
-char username[20];
+char selected_seat[SEAT_LENGTH +1];
 
 int num_flights;
 int num_reservations;
