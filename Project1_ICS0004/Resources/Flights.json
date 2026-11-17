@@ -1,35 +1,18 @@
 {
-  "num_flights":3,
+  "num_flights":1,
   "flights":[
     {
-      "destination":"faswga",
-      "departure":"agsag",
-      "num_seats":2,
-      "flight_number":4568,
+      "destination":"Tallinn",
+      "departure":"Helsinki",
+      "num_seats":6,
+      "flight_number":6902,
       "seats":[
-        "2A",
-        "9B"
-      ]
-    },
-    {
-      "destination":"njakwjn",
-      "departure":"sfi",
-      "num_seats":1,
-      "flight_number":1568,
-      "seats":[
-        "1A"
-      ]
-    },
-    {
-      "destination":"fjawk",
-      "departure":"awih",
-      "num_seats":4,
-      "flight_number":1586,
-      "seats":[
-        "4B",
-        "2C",
-        "9A",
-        "2B"
+        "5C",
+        "8D",
+        "3C",
+        "1A",
+        "7B",
+        "5A"
       ]
     }
   ]

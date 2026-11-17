@@ -1,0 +1,10 @@
+{
+  "num_reservations":1,
+  "reservations":[
+    {
+      "uid":2,
+      "flight_number":6902,
+      "seat":"8C"
+    }
+  ]
+}
