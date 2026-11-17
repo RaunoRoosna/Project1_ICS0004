@@ -139,14 +139,14 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DataManager.c" />
+    <ClCompile Include="File.c" />
     <ClCompile Include="Logic.c" />
     <ClCompile Include="Models.c" />
     <ClCompile Include="Models.h" />
     <ClCompile Include="Main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DataManager.h" />
+    <ClInclude Include="File.h" />
     <ClInclude Include="Logic.h" />
     <ClInclude Include="UI.h" />
   </ItemGroup>
