@@ -1,0 +1,35 @@
+{
+  "num_reservations":6,
+  "reservations":[
+    {
+      "uid":2,
+      "flight_number":3360,
+      "seat":"3B"
+    },
+    {
+      "uid":2,
+      "flight_number":2141,
+      "seat":"2F"
+    },
+    {
+      "uid":2,
+      "flight_number":2141,
+      "seat":"6A"
+    },
+    {
+      "uid":2,
+      "flight_number":3459,
+      "seat":"8D"
+    },
+    {
+      "uid":2,
+      "flight_number":1207,
+      "seat":"9D"
+    },
+    {
+      "uid":2,
+      "flight_number":1207,
+      "seat":"8B"
+    }
+  ]
+}

@@ -17,7 +17,7 @@ int main() {
 		char switch_action = prompt_get_reserve_view_menu();
 
 		switch (switch_action) {
-		case 'r':
+		case 'r': 
 			display_reservation_menu();
 			break;
 		case 'v':
@@ -47,11 +47,7 @@ int main() {
 		exit(1);
 	}
 	
-	for (int i = 0; i < current_flight->number_of_seats; i++) {
-		free(current_flight->available_seats[i]);
-	}
-	free(current_flight->available_seats);
-	return 0;
+	exit(0);
 }
 
 int prompt_get_username_menu(void) {
@@ -121,7 +117,7 @@ void flight_menu(int array[], int* elements) {
 		}
 		for (int j = 0; j < *elements; j++) {
 			if (selected_flight == cached_flights[array[j]]->flight_number) {
-				correct_flight_number = false;
+				correct_flight_number = true;
 				reserve_seat(&cached_flights[array[j]]);
 			}
 		}
@@ -139,6 +135,7 @@ void reservation_menu(char* destination_loc, char* departure_loc) {
 	else {
 		flight_menu(array, elements);
 	}
+	free(elements);
 }
 
 char prompt_get_view_modify_menu(void) {
@@ -194,7 +191,7 @@ char prompt_get_add_delete_menu(void) {
 	return switch_action;
 }
 
-void show_search_by_destination_and_departure_menu(void) { // rename
+void show_search_by_destination_and_departure_menu(void) { // rename later
 	char destination_loc[LOCATION_LENGTH];
 	char departure_loc[LOCATION_LENGTH];
 	do {
@@ -213,6 +210,8 @@ void show_search_by_destination_and_departure_menu(void) { // rename
 			show_flight(cached_flights[array[i]]);
 		}
 	}
+	memset(array, 0, sizeof(array));
+	memset(elements, 0, sizeof(elements));
 }
 
 void show_search_menu(void) {
@@ -277,6 +276,9 @@ void display_reservation_menu(void) {
 
 	write_flights_to_file();
 	write_reservations_to_file();
+	for (int i = 0; i < current_flight->number_of_seats; i++) {
+		free(current_flight->available_seats[i]);
+	}
 	free(current_flight);
 }
 

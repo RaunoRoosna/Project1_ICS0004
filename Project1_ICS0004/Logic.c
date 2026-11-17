@@ -24,6 +24,7 @@ void generate_flight(struct Flight** flight, char* destination_loc, char* depart
 			for (int j = 0; j < i; j++) {  // Check for duplicates
 				if (!strcmp(buf, (*flight)->available_seats[j])) {
 					duplicate = true;
+					buf[0] = '\0';
 					break;
 				}
 			}
@@ -56,7 +57,7 @@ void generate_flight(struct Flight** flight, char* destination_loc, char* depart
 
 void reserve_seat(struct Flight** flight) { // Removes the seat from flight struct and reallocates the memory for the seats array
 	char selected_seat[SEAT_LENGTH +1];
-	bool unput_valid = false;
+	bool input_valid = false;
 	bool seat_exists = false;
 	int i;
 	do {
@@ -65,7 +66,7 @@ void reserve_seat(struct Flight** flight) { // Removes the seat from flight stru
 		if (strlen(selected_seat) < SEAT_LENGTH -1) {
 			continue;
 		}
-		unput_valid = validate_string(selected_seat);
+		input_valid = validate_string(selected_seat);
 
 		for (i = 0; i < (*flight)->number_of_seats; i++) {
 			if (!strcmp((*flight)->available_seats[i], selected_seat)) {
@@ -73,7 +74,7 @@ void reserve_seat(struct Flight** flight) { // Removes the seat from flight stru
 				break;
 			}
 		}
-	} while (!unput_valid || !seat_exists);
+	} while (!input_valid || !seat_exists);
 
 	printf("You have booked seat %s on flight from %s to %s\n", selected_seat, (*flight)->departure, (*flight)->destination);
 	(*flight)->number_of_seats--;
@@ -190,6 +191,9 @@ void cancel_flight(int index) { //check index
 
 	num_flights--;
 	if (num_flights <= 0) {
+		for (int i = 0; i < cached_flights[index]->number_of_seats; i++) {
+			free(cached_flights[index]->available_seats[i]);
+		}
 		free(cached_flights[index]);
 		free(cached_flights);
 		return;
@@ -235,7 +239,8 @@ void cancel_reservations(int flight_number) { // cancel all reservations for a f
 }
 	
 void cancel_reservation_ui(int access){
-	int* reservations;
+	int* reservations = malloc(sizeof(int));
+	error_handler(101, reservations, 234);
 	int reservation_index = -1;
 	int* count = malloc(sizeof(int));
 	error_handler(101, count, 237);
@@ -259,6 +264,8 @@ void cancel_reservation_ui(int access){
 		cancel_reservation(f_num, seat);
 
 	} while (reservation_index == -1);
+	free(count);
+	free(reservations);
 }
 
 int find_reservation(int flight_number, char* seat, int uid) {
@@ -357,6 +364,7 @@ void add_flight(void) {
 		fgets(buf, SEAT_LENGTH +1, stdin);
 		if (!validate_string(buf)) {
 			i--; // Retry entering seat at the same position
+			buf[0] = '\0';
 			continue;
 		}
 		bool duplicate = false;
